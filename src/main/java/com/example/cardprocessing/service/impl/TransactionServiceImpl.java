@@ -3,6 +3,7 @@ package com.example.cardprocessing.service.impl;
 import com.example.cardprocessing.config.MiddlewareProperties;
 import com.example.cardprocessing.dto.CourseFromCbuDto;
 import com.example.cardprocessing.dto.CreateTransactionRequestDto;
+import com.example.cardprocessing.dto.TransactionHistoryResponseDto;
 import com.example.cardprocessing.entity.*;
 import com.example.cardprocessing.entity.users.Status;
 import com.example.cardprocessing.exception.ExceptionWithStatusCode;
@@ -14,6 +15,9 @@ import com.example.cardprocessing.service.connector.ConnectorMiddleware;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -53,7 +57,7 @@ public class TransactionServiceImpl implements TransactionService {
         Cards card = cardsRepository.findByCardId(cardId).orElseThrow(() -> new ExceptionWithStatusCode(HttpStatus.NOT_FOUND, 404, "card not found this card %s".formatted(cardId)));
         TransactionRequest requests = getTransactionRequest(UUID.fromString(idempotencyId));
         if (Objects.isNull(requests)) {
-            if (Objects.equals(card.getStatus(), Status.ACTIVE)){
+            if (!Objects.equals(card.getStatus(), Status.ACTIVE)){
                 throw new ExceptionWithStatusCode(HttpStatus.BAD_REQUEST, 400, "card is not ACTIVE");
             }
             if (Objects.equals(Currency.valueOf(requestDto.getCurrency()), card.getCurrency())) {
@@ -88,6 +92,19 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         return transactionRequestRepository.findByIdempotencyId(UUID.fromString(idempotencyId)).getTransaction();
+    }
+
+    @Override
+    public TransactionHistoryResponseDto getTransactionHistoryByCardId(UUID cardId, Integer pageNumber, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Transaction> transactionList = transactionRepository.findAllByCardId(cardId, pageable);
+        TransactionHistoryResponseDto responseDto = new TransactionHistoryResponseDto();
+        responseDto.setSize(Long.valueOf(transactionList.getSize()));
+        responseDto.setPage(Long.valueOf(transactionList.getPageable().getPageNumber()));
+        responseDto.setTotalItems(transactionList.getTotalElements());
+        responseDto.setTotalPages(Long.valueOf(transactionList.getTotalPages()));
+        responseDto.setContent(transactionList.getContent());
+        return responseDto;
     }
 
     TransactionRequest getTransactionRequest(UUID idempotencyId) {

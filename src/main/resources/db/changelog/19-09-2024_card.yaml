@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: "1"
+      author: "Hasan"
+      changes:
+        - createTable:
+            tableName: "cards"
+            columns:
+              - column:
+                  name: "etag"
+                  type: "uuid"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "user_id"
+                  type: "uuid"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "status"
+                  type: "varchar(10)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "card_id"
+                  type: "uuid"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "balance"
+                  type: "bigint"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "currency"
+                  type: "varchar(3)"
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: "cards"
+            baseColumnNames: "user_id"
+            referencedTableName: "users"
+            referencedColumnNames: "id"
+            constraintName: "fk_cards_users"

@@ -5,10 +5,12 @@ import com.example.cardprocessing.entity.users.RefreshToken;
 import com.example.cardprocessing.entity.users.Users;
 import com.example.cardprocessing.dto.AuthDtoResponse;
 import com.example.cardprocessing.dto.LoginRequestDto;
+import com.example.cardprocessing.exception.ExceptionWithStatusCode;
 import com.example.cardprocessing.repository.RefreshTokenRepository;
 import com.example.cardprocessing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,9 +46,8 @@ public class AuthService {
             authPayload.setTokenType("Bearer");
             return authPayload;
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("error in Login - {}", e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new ExceptionWithStatusCode(HttpStatus.BAD_REQUEST, 400, e.getMessage());
         }
 
     }
@@ -75,12 +76,12 @@ public class AuthService {
         try {
             RefreshToken refreshToken = refreshTokenRepository.findFirstByRefreshTokenOrderByCreateDateDesc(getAccessTokenByTokenRequestDto.getRefreshToken()).orElseThrow(() -> new RuntimeException("refresh not found"));
             if (!refreshTokenUtil.validateRefreshToken(refreshToken)) {
-                throw new RuntimeException("refresh_token is expired");
+                throw new ExceptionWithStatusCode(HttpStatus.INTERNAL_SERVER_ERROR, 500, "refresh_token is expired");
             }
             return createTokenByUsername(refreshToken.getUser().getUsername());
         } catch (Exception e) {
             log.error("error in Login - {}", e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new ExceptionWithStatusCode(HttpStatus.INTERNAL_SERVER_ERROR, 500, e.getMessage());
         }
     }
 

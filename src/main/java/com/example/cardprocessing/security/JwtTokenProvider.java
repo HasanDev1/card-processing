@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ import java.util.List;
 @Slf4j
 public class JwtTokenProvider {
 
+    @Qualifier(value = "jwtUserDetailsService")
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final JwtProperties appProperties;
@@ -70,7 +72,6 @@ public class JwtTokenProvider {
             log.error("Invalid JWT signature: {}", e.getMessage());
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
-            throw new ExceptionWithStatusCode(HttpStatus.UNAUTHORIZED, 401, "Unauthorized");
         } catch (ExpiredJwtException e) {
             log.error("JWT token is expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {

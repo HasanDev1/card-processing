@@ -1,14 +1,22 @@
 package com.example.cardprocessing.exception;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
+
+import java.io.IOException;
 
 @RestControllerAdvice(basePackages = "com.example.cardprocessing")
 public class ControllerExceptionHandler {
@@ -51,6 +59,18 @@ public class ControllerExceptionHandler {
                         new ErrorBaseResponse(
                                 400,
                                 e.getFieldErrors().get(0).getDefaultMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class})
+    public ResponseEntity<ErrorBaseResponse> usernameNotFoundException(UsernameNotFoundException e){
+        return ResponseEntity
+                .status(400)
+                .body(
+                        new ErrorBaseResponse(
+                                400,
+                                e.getMessage()
                         )
                 );
     }

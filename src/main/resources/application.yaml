@@ -1,17 +1,17 @@
 spring:
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:db/master.yaml
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:card_processing_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:admin}
+    url: jdbc:postgresql://localhost:5432/card_processing_db
+    username: postgres
+    password: admin
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -20,7 +20,7 @@ spring:
 secret:
   key: my-super-secretKey_my-super-secretKey_my-super-secretKey
   refresh-token:
-    expiry: 900000
+    expiry: 21600000
 cbu:
   base-url: https://cbu.uz
   end-point: /ru/arkhiv-kursov-valyut/json/all/
