@@ -1,6 +1,6 @@
 package com.example.cardprocessing.security;
 
-import com.example.cardprocessing.config.AppProperties;
+import com.example.cardprocessing.config.JwtProperties;
 import com.example.cardprocessing.entity.users.Roles;
 import com.example.cardprocessing.entity.users.Users;
 import com.example.cardprocessing.exception.ExceptionWithStatusCode;
@@ -30,7 +30,7 @@ public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
-    private final AppProperties appProperties;
+    private final JwtProperties appProperties;
     private String secretKey;
 
 //        base64 encodeladik

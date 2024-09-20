@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "secret")
-public class AppProperties {
+public class JwtProperties {
 
     private String key;
     private RefreshToken refreshToken;

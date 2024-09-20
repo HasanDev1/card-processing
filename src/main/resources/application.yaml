@@ -20,4 +20,7 @@ spring:
 secret:
   key: my-super-secretKey_my-super-secretKey_my-super-secretKey
   refresh-token:
-    expiry: 600000
+    expiry: 900000
+cbu:
+  base-url: https://cbu.uz
+  end-point: /ru/arkhiv-kursov-valyut/json/all/

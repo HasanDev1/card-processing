@@ -1,6 +1,6 @@
 package com.example.cardprocessing.security;
 
-import com.example.cardprocessing.config.AppProperties;
+import com.example.cardprocessing.config.JwtProperties;
 import com.example.cardprocessing.entity.users.RefreshToken;
 import com.example.cardprocessing.entity.users.Users;
 import com.example.cardprocessing.repository.RefreshTokenRepository;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class RefreshTokenUtil {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AppProperties appProperties;
+    private final JwtProperties appProperties;
 
     public RefreshToken createRefreshToken(Users users){
         RefreshToken refreshToken = new RefreshToken();
