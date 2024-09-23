@@ -12,8 +12,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,15 +48,13 @@ public class SecurityConfig {
 
 
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder, @Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService)
-            throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(bCryptPasswordEncoder)
-                .and()
-                .build();
-    }
+    public AuthenticationManager authenticationManager(@Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
 
+        return new ProviderManager(authenticationProvider);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -82,7 +82,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/course").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
+                .authenticationManager(authenticationManager(new JwtUserDetailsService(userRepository), passwordEncoder()))
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 //                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthEntryPoint))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler))
@@ -90,11 +90,4 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(new JwtUserDetailsService(userRepository));
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
 }
